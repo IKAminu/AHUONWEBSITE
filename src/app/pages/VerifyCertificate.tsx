@@ -62,14 +62,14 @@ export function VerifyCertificate() {
 
   return (
     <div className="min-h-screen bg-[#F8FAF9] py-12 px-4">
-      <div className="max-w-xl mx-auto">
+      <div className="w-full max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-green-50 border border-green-200 rounded-lg mb-4">
             <Shield size={22} className="text-[#008000]" />
           </div>
           <h1 className="text-2xl font-bold text-[#17211B] mb-2">Verify Membership Certificate</h1>
-          <p className="text-sm text-[#66736A] max-w-sm mx-auto leading-relaxed">
+          <p className="text-sm text-[#66736A] max-w-lg mx-auto leading-relaxed">
             Confirm that an AHUON membership certificate is current and authentic before engaging any operator.
           </p>
         </div>
@@ -80,15 +80,15 @@ export function VerifyCertificate() {
           <ul className="space-y-2 text-sm text-[#66736A]">
             <li className="flex items-start gap-2">
               <span className="w-4 h-4 rounded-sm bg-[#003D1F] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
-              Enter the membership number printed on the certificate below.
+              <span className="min-w-0">Enter the membership number printed on the certificate below.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="w-4 h-4 rounded-sm bg-[#003D1F] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
-              Alternatively, scan the QR code on the physical certificate with your phone camera.
+              <span className="min-w-0">Alternatively, scan the QR code on the physical certificate with your phone camera.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="w-4 h-4 rounded-sm bg-[#003D1F] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
-              Results will confirm the member's name, status, and validity period.
+              <span className="min-w-0">Results will confirm the member's name, status, and validity period.</span>
             </li>
           </ul>
         </div>
@@ -98,7 +98,7 @@ export function VerifyCertificate() {
           <label htmlFor="membership-number" className="block text-sm font-medium text-[#17211B] mb-2">
             Membership Number
           </label>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <input
               id="membership-number"
               type="text"
@@ -106,12 +106,12 @@ export function VerifyCertificate() {
               onChange={(e) => setMembershipNumber(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
               placeholder="e.g. AHUON-2026-00001"
-              className="flex-1 border border-[#E2E8E4] rounded-md px-3 py-2.5 text-sm font-mono text-[#17211B] placeholder:text-[#66736A] placeholder:font-sans focus:border-[#008000] focus:ring-1 focus:ring-[#008000] focus:outline-none"
+              className="min-w-0 flex-1 border border-[#E2E8E4] rounded-md px-3 py-2.5 text-sm font-mono text-[#17211B] placeholder:text-[#66736A] placeholder:font-sans focus:border-[#008000] focus:ring-1 focus:ring-[#008000] focus:outline-none"
             />
             <button
               onClick={handleVerify}
               disabled={state === 'loading'}
-              className="flex items-center gap-2 bg-[#008000] text-white font-semibold text-sm px-4 py-2.5 rounded-md hover:bg-[#005A2B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#008000]"
+              className="flex w-full sm:w-auto shrink-0 items-center justify-center gap-2 bg-[#008000] text-white font-semibold text-sm px-4 py-2.5 rounded-md hover:bg-[#005A2B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#008000]"
             >
               <Search size={15} />
               {state === 'loading' ? 'Verifying...' : 'Verify'}
@@ -124,9 +124,9 @@ export function VerifyCertificate() {
           <div className="bg-white border border-[#E2E8E4] rounded-lg p-8 text-center">
             <XCircle size={32} className="text-red-600 mx-auto mb-3" />
             <h2 className="font-semibold text-[#17211B] mb-2">Not Found</h2>
-            <p className="text-sm text-[#66736A] leading-relaxed">
+            <p className="text-sm text-[#66736A] leading-relaxed break-words">
               No AHUON member was found with membership number{' '}
-              <strong className="font-mono text-[#17211B]">{membershipNumber}</strong>.
+              <strong className="font-mono text-[#17211B] break-all">{membershipNumber}</strong>.
               Please check the number and try again, or contact AHUON directly.
             </p>
           </div>
@@ -151,7 +151,7 @@ export function VerifyCertificate() {
                 ) : (
                   <XCircle size={22} className="text-red-700 flex-shrink-0 mt-0.5" />
                 )}
-                <div>
+                <div className="min-w-0">
                   <div className={`font-bold text-[15px] mb-0.5 ${
                     verificationStatus === 'valid' ? 'text-green-900'
                     : verificationStatus === 'expired' ? 'text-amber-900'
@@ -181,7 +181,7 @@ export function VerifyCertificate() {
             {/* Member details */}
             <div className="bg-white border border-[#E2E8E4] rounded-lg p-6">
               <h2 className="font-semibold text-[15px] text-[#17211B] mb-4">Member Record</h2>
-              <div className="border border-[#E2E8E4] rounded-md divide-y divide-[#E2E8E4] text-sm">
+              <div className="border border-[#E2E8E4] rounded-md divide-y divide-[#E2E8E4] text-sm overflow-hidden">
                 {[
                   { label: 'Company Name', value: result.companyName },
                   { label: 'Membership Number', value: result.membershipNumber, mono: true },
@@ -200,9 +200,9 @@ export function VerifyCertificate() {
                       : '—'
                   },
                 ].map(row => (
-                  <div key={row.label} className="flex px-4 py-3">
-                    <span className="w-36 text-[#66736A] flex-shrink-0">{row.label}</span>
-                    <span className={`font-medium text-[#17211B] ${row.mono ? 'font-mono' : ''}`}>{row.value}</span>
+                  <div key={row.label} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-start sm:gap-0">
+                    <span className="w-auto sm:w-36 text-[#66736A] flex-shrink-0">{row.label}</span>
+                    <span className={`min-w-0 font-medium text-[#17211B] break-words ${row.mono ? 'font-mono break-all' : ''}`}>{row.value}</span>
                   </div>
                 ))}
               </div>
@@ -211,7 +211,7 @@ export function VerifyCertificate() {
             {/* Complaint info */}
             {result.complaintCount !== undefined && (
               <div className="bg-[#F8FAF9] border border-[#E2E8E4] rounded-lg p-5">
-                <div className="text-sm text-[#66736A]">
+                <div className="text-sm text-[#66736A] break-words">
                   {result.complaintCount === 0
                     ? 'No complaints have been filed against this operator.'
                     : `${result.complaintCount} complaint${result.complaintCount > 1 ? 's' : ''} on record. ${result.complaintResolvedCount || 0} resolved.`}
