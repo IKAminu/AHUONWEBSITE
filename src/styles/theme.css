@@ -64,6 +64,18 @@
     box-sizing: border-box;
   }
 
+  /* Prevent an inherited/accidental CSS multi-column context from
+     collapsing page content into narrow newspaper-like columns. */
+  main,
+  main *,
+  footer,
+  footer * {
+    column-count: auto;
+    column-width: auto;
+    column-gap: normal;
+    columns: auto;
+  }
+
   img,
   svg,
   video,
