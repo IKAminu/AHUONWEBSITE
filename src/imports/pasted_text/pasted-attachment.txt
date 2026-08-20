@@ -1,0 +1,496 @@
+COMPLETE WEBSITE DESIGN SPECIFICATION FOR DEVELOPER
+AHUON – Association of Hajj and Umrah Operators of Nigeria
+A Fully Functional Association Website with Member Registration, Public Directory, Complaint Portal, Annual Renewal & Certificate System
+PART 1: PROJECT OVERVIEW
+1.1 Client / Association Information
+Field	Details
+Association Name	Association of Hajj and Umrah Operators of Nigeria (AHUON)
+Industry	Hajj and Umrah pilgrimage operations
+Regulatory Body	NAHCON (National Hajj Commission of Nigeria)
+Target Audience	Hajj/Umrah operators (members) + Nigerian pilgrims (public)
+Core Problem	No digital presence; manual membership management; no public verification system; no formal complaint mechanism
+1.2 Website Objectives
+Priority	Objective
+P1 (Critical)	Online member registration with payment
+P1 (Critical)	Public searchable directory of verified members
+P1 (Critical)	Annual renewal with auto-generated PDF certificate
+P2 (High)	Public complaint portal with tracking
+P2 (High)	EXCO dashboard for approvals and management
+P3 (Medium)	News and publications section
+P3 (Medium)	Notification system (email/SMS)
+P4 (Low)	QR code verification on certificates
+1.3 Technology Stack Recommendation
+Component	Recommended	Alternative
+CMS	WordPress 6.x	Custom PHP/Laravel (more expensive)
+Hosting	Hostinger Business Plan or Namecheap Stellar Plus	AWS Lightsail
+Domain	ahuon.org.ng (preferred) or ahuon.com.ng	-
+Membership Plugin	Paid Memberships Pro (Paid Memberships Pro)	MemberPress, Ultimate Member
+Payment Gateway	Paystack (Nigeria-focused, supports recurring)	Flutterwave
+Form Builder	Gravity Forms	Fluent Forms, WPForms
+Directory Plugin	Connections Business Directory	Directorist, Business Directory Plugin
+Certificate Generator	Paid Memberships Pro + PDF Invoices & Packing Slips for WooCommerce	Custom PHP + Dompdf
+QR Code	Two Factor Authentication (QR code generation)	Custom using phpqrcode
+Email/SMS	WP Mail SMTP + Termii or Africa's Talking	Twilio (more expensive)
+PART 2: DATABASE SCHEMA / CUSTOM POST TYPES
+2.1 Member Database Fields (Stored as Custom User Meta)
+Field Name	Field Type	Required	Used In
+company_name	Text	Yes	Directory, Certificate
+rc_number	Text (CAC)	Yes	Verification
+nahcon_license	Text	Yes	Verification
+years_in_operation	Number (dropdown: 1-5, 5-10, 10+)	Yes	Directory filter
+principal_officer_name	Text	Yes	Certificate, Contact
+principal_officer_phone	Phone (Nigeria format)	Yes	SMS notifications
+principal_officer_email	Email	Yes	Login, notifications
+office_address	Textarea	Yes	Directory (city/state only public)
+office_city	Text	Yes	Directory filter
+office_state	Dropdown (37 states + FCT)	Yes	Directory filter
+bank_name	Text	Yes	Financial (EXCO only)
+bank_account_number	Text	Yes	Financial (EXCO only)
+bank_account_name	Text	Yes	Financial (EXCO only)
+referee_1_name	Text	Yes	EXCO verification
+referee_1_membership_no	Text	Yes	EXCO verification
+referee_2_name	Text	Yes	EXCO verification
+referee_2_membership_no	Text	Yes	EXCO verification
+services_offered	Checkbox (Hajj only, Umrah only, Both)	Yes	Directory filter
+languages_spoken	Checkbox (English, Hausa, Arabic, Yoruba, Igbo)	No	Directory filter
+membership_status	Dropdown (pending, active, lapsed, suspended)	Yes	Determines directory visibility
+membership_start_date	Date	Auto	Certificate generation
+membership_expiry_date	Date	Auto	Renewal reminders
+complaint_count	Number	Auto	Trust indicator
+complaint_resolved_count	Number	Auto	Trust indicator
+2.2 Complaint Database Fields
+Field Name	Field Type	Required	Notes
+complaint_reference	Text (auto-generated: AHUON-YYYY-NNNN)	Auto	Unique identifier
+pilgrim_full_name	Text	Yes	Confidential (EXCO only)
+pilgrim_phone	Phone	Yes	For follow-up
+pilgrim_email	Email	Yes	For updates
+operator_member_id	Foreign key (User ID)	Yes	Links to member
+package_details	Text	Yes	Description of booked package
+amount_paid	Number (₦)	Yes	For fraud assessment
+incident_date	Date	Yes	Timeline
+complaint_category	Dropdown (visa_promise, ticketing_fraud, accommodation_undelivered, refund_refusal, other)	Yes	Categorization
+description	Textarea	Yes	Full details
+evidence_urls	Text (array of file paths)	No	Uploaded receipts/screenshots
+status	Dropdown (new, investigating, awaiting_member_response, resolved_internal, escalated_efcc, closed_invalid)	Auto	Workflow tracking
+exco_notes	Textarea	No	Internal notes only
+resolution_summary	Textarea	No	Public-facing (operator name redacted)
+date_filed	Datetime	Auto	Timestamp
+last_updated	Datetime	Auto	For tracking
+2.3 Member Files Uploads
+File Type	Required	Storage Path	Access
+CAC Certificate (PDF)	Yes	/wp-content/uploads/ahuon/cac/{user_id}/	EXCO only
+NAHCON License (PDF)	Yes	/wp-content/uploads/ahuon/nahcon/{user_id}/	EXCO only
+Principal Officer Passport Photo (JPG/PNG)	Yes	/wp-content/uploads/ahuon/photo/{user_id}/	Profile page
+Utility Bill (PDF/JPG)	Yes	/wp-content/uploads/ahuon/utility/{user_id}/	EXCO only
+Reference Letter 1 (PDF)	Yes	/wp-content/uploads/ahuon/reference/{user_id}/ref1/	EXCO only
+Reference Letter 2 (PDF)	Yes	/wp-content/uploads/ahuon/reference/{user_id}/ref2/	EXCO only
+PART 3: PAGE-BY-PAGE DESIGN SPECIFICATION
+3.1 HOME PAGE
+URL: ahuon.org.ng
+
+Layout Components (Top to Bottom):
+
+Section	Content	Developer Notes
+Header	Logo (left) + Main Navigation (center) + "Member Login" button (right)	Sticky header on scroll
+Hero Banner	Background image: Nigerian pilgrims in Mecca/Medina. Headline: "AHUON – The Voice of Hajj & Umrah Operators in Nigeria". Subheadline: "Verified. Trusted. Professional." CTA buttons: "Find an Operator" (links to directory) and "Register Your Agency" (links to registration)	Full-width, responsive
+Search Bar	"Find a Verified Hajj/Umrah Operator by Name, City or State" – search field + search button	AJAX live search
+Trust Indicators	3 columns: "500+ Verified Members", "20,000+ Pilgrims Served Annually", "5-Day Complaint Resolution"	Icons + numbers (can be static or animated count-up)
+Latest News	3 most recent posts from News section with thumbnails	Carousel or grid
+Why Choose AHUON Member	4 columns: "NAHCON Licensed", "Saudi Approved", "EFCC Partnership", "Multi-Door Court Access"	Icons + short text
+Footer	Logo + brief description + quick links + contact + "Website gifted by [Your Agency Name]"	4-column layout, responsive
+Color Palette (Professional, Trustworthy):
+
+Element	Color	Hex Code
+Primary (buttons, links)	Islamic Green	#008000
+Secondary (accents)	Gold	#FFD700
+Background	White	#FFFFFF
+Text (body)	Dark Gray	#333333
+Text (light)	Gray	#666666
+Headers	Dark Green	#004d00
+Footer background	Very Dark Green	#001a00
+Error/warning	Red	#DC3545
+Success	Green	#28A745
+Warning	Orange	#FFC107
+Typography:
+
+Element	Font	Size	Weight
+Headings (H1-H4)	Poppins or Montserrat	H1: 48px, H2: 36px, H3: 24px	700
+Body text	Open Sans or Roboto	16px	400
+Navigation menu	Poppins	16px	600
+3.2 MEMBER REGISTRATION PAGE
+URL: ahuon.org.ng/register
+
+Multi-Step Form Design (to reduce abandonment):
+
+Step 1: Company Information
+
+Field	Type	Validation
+Company Registered Name	Text	Required, min 3 chars
+RC Number (CAC)	Text	Required, format: RC-XXXXXX
+NAHCON License Number	Text	Required
+Years in Hajj/Umrah Operation	Dropdown	Required (1-5, 5-10, 10-15, 15+)
+Office Address	Textarea	Required
+Office City	Text	Required
+Office State	Dropdown (all 37 states + FCT)	Required
+Services Offered	Checkbox	Required (Hajj only, Umrah only, Both)
+Step 2: Principal Officer Information
+
+Field	Type	Validation
+Full Name	Text	Required
+Phone Number	Tel	Required, Nigerian format (080XXXXXXXX)
+Email Address	Email	Required, unique, confirmation
+Position in Company	Text	Required (e.g., CEO, MD, Director)
+Passport Photograph	File (JPG, PNG, max 2MB)	Required
+Step 3: References (Two AHUON Members)
+
+Field	Type	Validation
+Referee 1: Company Name	Text	Required
+Referee 1: Membership Number	Text	Required, must exist in database
+Referee 1: Letter of Reference	File (PDF, max 5MB)	Required
+Referee 2: Company Name	Text	Required
+Referee 2: Membership Number	Text	Required, must exist in database
+Referee 2: Letter of Reference	File (PDF, max 5MB)	Required
+Step 4: Banking Information (for refunds/ payments)
+
+Field	Type	Validation
+Bank Name	Dropdown (all Nigerian banks)	Required
+Account Number	Text	Required, 10 digits
+Account Name	Text	Required (auto-fetch via Paystack optional)
+Upload CAC Certificate	File (PDF, max 5MB)	Required
+Upload Utility Bill	File (PDF/JPG, max 2MB)	Required
+Step 5: Payment
+
+Field	Type	Notes
+Registration Fee	Display: ₦20,000	Non-refundable
+Payment Button	Paystack Popup	Collects card, bank transfer, USSD
+Terms Agreement	Checkbox	Required: "I confirm all information is true and agree to AHUON constitution"
+After Payment:
+
+Create WordPress user account (role: pending_member)
+
+Store all meta data
+
+Send email to applicant: "Application Received – Under Review"
+
+Send email to EXCO: "New Member Application #XXXX requires approval"
+
+Display success page: "Your application is under review. EXCO will respond within 7-14 days."
+
+3.3 MEMBER LOGIN & DASHBOARD
+Login URL: ahuon.org.ng/login
+
+Dashboard URL (after login): ahuon.org.ng/member-dashboard
+
+Dashboard Sections:
+
+Tab	Content	Notes
+Overview	Welcome message, membership status (Active until [Date]), "Renew Now" button (if within 60 days of expiry), complaint summary (complaints filed against you)	-
+My Profile	View/edit public profile fields (address, phone, services offered). Cannot edit CAC/NAHCON numbers without EXCO approval.	Update triggers EXCO notification
+Renew Membership	Display renewal fee (₦10,000). Paystack button. After payment, membership expiry extends by 12 months. New certificate generated automatically.	60/30/7 day email reminders
+Certificate	Download current membership certificate (PDF). Regenerate if lost (limit 3 per year). QR code preview.	-
+Complaints Against Me	List of complaints filed by pilgrims. Show status, date filed, link to respond. Response form within 48-hour window.	-
+Payment History	List of all registration/renewal payments with receipts	-
+3.4 PUBLIC MEMBER DIRECTORY
+URL: ahuon.org.ng/directory
+
+Page Layout:
+
+Section	Design
+Header	"Find a Verified AHUON Hajj & Umrah Operator" + description
+Filters (Sidebar – Left)	State (dropdown), Years of Experience (checkboxes), Services (Hajj/Umrah/Both), Languages Spoken (checkboxes), Search by Company Name (text field)
+Results (Main – Right)	Grid or list view (toggle). Each card shows: Company Name, Years in Operation, City/State, "AHUON Verified Since [Year]", Star rating (from pilgrim reviews), "View Details" button
+Pagination	12 results per page
+Detail Page (click on any member): ahuon.org.ng/directory/company-name
+
+Section	Content	Privacy
+Header	Company Name, Verification badge, Years in Operation	Public
+Contact	Phone, Email, Office Address (full address visible only after captcha verification to prevent bots)	Phone/Email public; full address requires captcha
+Services	Hajj, Umrah, or Both	Public
+Trust Badges	"NAHCON Licensed", "Saudi Approved", "AHUON Verified"	Public
+Complaint Record	"No unresolved complaints in last 12 months" OR "Has resolved X complaints" (details hidden)	Public
+Rate This Operator	5-star rating form (only verified pilgrims who have used this operator can rate – requires reference number)	Requires login/signup
+Report This Operator	Button linking to complaint portal, pre-filled with operator name	Public
+3.5 PUBLIC COMPLAINT PORTAL
+URL: ahuon.org.ng/file-complaint
+
+Form Design:
+
+Step	Fields
+Step 1: Operator Information	Search/select operator from dropdown (populated from active members), OR "Operator not listed" checkbox
+Step 2: Pilgrim Information	Full Name, Phone, Email, Relationship to pilgrim (self, family member, agent)
+Step 3: Package Details	Package name/description, Amount paid (₦), Date of incident, Booking reference (if any)
+Step 4: Complaint Details	Category (dropdown: Visa promise not fulfilled, Ticketing fraud, Accommodation not as promised, Refund not processed, Other), Description (textarea, min 50 chars), Upload evidence (images/PDFs, max 10MB total)
+Step 5: Confirmation	"I confirm this complaint is truthful to the best of my knowledge (false complaints may be referred to EFCC for prosecution)" – checkbox. Submit button.
+Complaint Tracking Page: ahuon.org.ng/complaint-status
+
+Field	Purpose
+Complaint Reference Number	Enter to check status
+Status Display	Visual progress bar: Submitted → Under Review → Investigation → Resolution Proposed → Closed / Escalated
+Timeline	Show key dates: Submitted, EXCO assigned, Member notified, Response received, Resolution date
+Public Updates	EXCO can post public updates (e.g., "Awaiting member response. Deadline: April 20, 2026")
+Email Notifications (Auto):
+
+Upon filing: "Complaint #XXXX received. Reference number sent to your email."
+
+When EXCO reviews: "Complaint #XXXX under investigation."
+
+When member responds: "Operator has responded to your complaint. Log in to view."
+
+When resolved: "Complaint #XXXX resolved. Resolution summary attached."
+
+When escalated: "Complaint #XXXX referred to EFCC. Case number: [EFCC reference]."
+
+3.6 NEWS & PUBLICATIONS
+URL: ahuon.org.ng/news
+
+Post Types:
+
+Type	Who Can Create	Display Location
+Official Circulars	EXCO only	Top of news page, featured section. Also sent as email to all members.
+NAHCON Updates	Editor (appointed by EXCO)	News section. Tag: "NAHCON"
+Saudi Authorities Updates	Editor	News section. Tag: "Saudi"
+Press Releases	PRO	News section. Tag: "Press Release"
+Member Spotlights	Admin (approved only)	Homepage sidebar, also news section
+Post Template:
+
+Title
+
+Featured image (minimum 1200x630 for social sharing)
+
+Date published
+
+Author (AHUON or Editor name)
+
+Category/tags
+
+Full content
+
+"Share this" buttons (WhatsApp, Facebook, Twitter, LinkedIn)
+
+Print button
+
+Email Automation:
+
+When "Official Circular" is published → send email to ALL members immediately
+
+When "NAHCON Update" is published → send email to members + public subscribers
+
+3.7 EXCO DASHBOARD (Admin – Password Protected)
+URL: ahuon.org.ng/exco
+
+Access: Only users with role ahuon_exco or administrator
+
+Dashboard Sections:
+
+Section 1: Pending Registrations
+
+Table showing: Applicant name, Company, Date submitted, Status (pending)
+
+Columns: Approve button, Reject button (with reason field), View Application Details (modal with all uploaded files)
+
+After approval: User role changes from pending_member to member. Membership start date = today. Expiry = +12 months. Certificate generated. Welcome email sent.
+
+Section 2: Member Management
+
+Search members (by name, RC number, membership number)
+
+Edit member details (except finance)
+
+Suspend member (with reason) – removes from public directory
+
+Reset member password
+
+View member's complaint history
+
+Manually generate/renew certificate
+
+Section 3: Complaints Management
+
+Table showing: Reference, Pilgrim name (confidential), Operator, Category, Date filed, Status, Days remaining (for 5-day resolution)
+
+Click to view full complaint with evidence
+
+Actions:
+
+"Accept as valid" → notify member, start 48-hour response clock
+
+"Request more information from pilgrim" → send email
+
+"Dismiss as invalid" → close with reason
+
+"Escalate to EFCC" → generate EFCC referral letter, mark case escalated_efcc
+
+Time tracking: Dashboard shows complaints at risk of exceeding 5 days (red background)
+
+Section 4: Financial Reports
+
+Summary: Total registration fees collected (period filter), Total renewal fees collected, Total available balance (accounting for Paystack fees)
+
+Export to CSV/Excel
+
+Download payment receipts for members (PDF)
+
+Section 5: Certificate Management
+
+"Generate Bulk Certificates" – for annual renewals (all members due this month)
+
+"Regenerate Certificate" – for member request
+
+"Verify Certificate by QR Code" – search tool
+
+Section 6: Communications
+
+Compose email: Select recipients (all members, by state, by membership status, by renewal due group)
+
+Subject, message body (rich text), attachment (optional)
+
+Send SMS (integration with Termii) – per SMS cost tracked
+
+Section 7: Settings
+
+Fee structure: Registration fee amount, Renewal fee amount, Late fee amount (after expiry)
+
+Notification templates: Edit email/SMS templates for each event
+
+Notification triggers: Enable/disable each notification type
+
+EXCO user management: Add/remove EXCO users, assign permissions
+
+PART 4: CRITICAL FEATURES – DETAILED SPECIFICATIONS
+4.1 Certificate Generation System
+Trigger Events:
+
+New member approved → Auto-generate
+
+Renewal payment completed → Auto-generate (new expiry date)
+
+EXCO manually triggers → Generate from dashboard
+
+Certificate Content (PDF):
+
+text
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│                 AHUON LOGO                      │
+│   ASSOCIATION OF HAJJ AND UMRAH OPERATORS       │
+│               OF NIGERIA                        │
+│                                                 │
+│         MEMBERSHIP CERTIFICATE                  │
+│                                                 │
+│  This certifies that                            │
+│                                                 │
+│         [COMPANY NAME]                          │
+│                                                 │
+│  RC Number: [RC NUMBER]                         │
+│  NAHCON License: [LICENSE NUMBER]               │
+│                                                 │
+│  is a verified member in good standing of       │
+│  AHUON for the period:                          │
+│                                                 │
+│  [START DATE]  to  [EXPIRY DATE]                │
+│                                                 │
+│  Membership Number: AHUON-[YEAR]-[XXXXX]        │
+│                                                 │
+│  ┌───────────────────────────────────────┐     │
+│  │          QR CODE IMAGE HERE            │     │
+│  │  Scan to verify membership status      │     │
+│  └───────────────────────────────────────┘     │
+│                                                 │
+│  Signed: _________________________             │
+│          AHUON National President              │
+│                                                 │
+│  Certificate generated on: [DATE]              │
+│  │  Website gifted by [Your Agency Name] │     │
+└─────────────────────────────────────────────────┘
+QR Code Content (when scanned):
+
+URL: https://ahuon.org.ng/verify?member=AHUON-2026-12345
+
+Verification page shows: Company Name, Current Status (Active/Expired/Suspended), Expiry Date, Whether complaints are pending
+
+4.2 5-Day Resolution Clock (Integrity Platform Integration)
+Business Logic:
+
+Timeframe	Action	Auto-notification
+Day 0 (Hour 0)	Complaint filed. EXCO notified.	EXCO email + SMS
+Day 0-2 (48 hours)	EXCO reviews, assigns "valid" or "invalid". If valid, member notified.	Member email: "You have 5 days to resolve complaint #XXXX"
+Day 2-5	Member responds via dashboard, proposes resolution. Pilgrim accepts/rejects.	Daily reminder emails to member if no response
+Day 5 (End of day)	If unresolved: EXCO reviews. If EXCO decides fraud → Case packet exported to JSON. Sent to Integrity Platform API.	Pilgrim email: "Your case has been escalated to EFCC/Multi-Door Court. Reference number: [EFCC-XXXX]"
+Day 5+	Integrity Platform handles further escalation. AHUON dashboard shows "Escalated".	-
+API Integration Requirements (for Integrity Platform):
+
+Endpoint to receive case: POST /api/v1/cases
+
+Authentication: API key (provided by your platform)
+
+Payload structure:
+
+json
+{
+  "case_reference": "AHUON-2026-0042",
+  "pilgrim_name": "[REDACTED - for EFCC only]",
+  "pilgrim_phone": "[REDACTED]",
+  "operator_name": "Company Name",
+  "operator_rc_number": "RC-12345",
+  "operator_membership_no": "AHUON-2026-001",
+  "amount_in_dispute": 8000000,
+  "complaint_category": "visa_promise",
+  "evidence_urls": ["https://ahuon.org.ng/evidence/123/file1.jpg"],
+  "exco_summary": "Member failed to respond within 5 days",
+  "submitted_at": "2026-04-15T10:30:00Z"
+}
+4.3 Payment & Renewal Automation
+Registration Payment Flow:
+
+text
+Applicant submits form → Redirect to Paystack → Payment successful → Webhook received by WordPress → 
+→ Create user (pending_member) → Store meta data → Send email to EXCO
+Renewal Payment Flow:
+
+text
+Member logs in → Clicks "Renew Now" → Paystack popup (fee pre-set) → Webhook received → 
+→ Update membership_expiry_date (add 12 months) → Regenerate certificate → Send email to member with new certificate
+Paystack Webhook Endpoint: https://ahuon.org.ng/wp-json/pmpro/v1/webhook
+
+Automated Reminders (Cron Jobs):
+
+Days Before Expiry	Action
+60 days	Send email: "Your membership expires in 60 days. Renew now to avoid lapsed status."
+30 days	Send email + (optional) SMS: "Your membership expires in 30 days. Renew now."
+7 days	Send email + SMS: "Your membership expires in 7 days. RENEW NOW or you will be removed from public directory."
+0 days (expiry day)	Change user role from member to lapsed_member. Remove from public directory. Send notification.
+30 days after expiry (grace period)	Send final email: "Your membership has lapsed. You have been removed from the directory. To reinstate, pay renewal fee + late fee."
+90 days after expiry	Delete user account (or archive). Notify EXCO.
+PART 5: USER ROLES & PERMISSIONS
+Role	Capabilities
+Administrator (Developer/Your Agency)	Full access to all WordPress settings, plugins, themes. Can add/remove EXCO users. Initially you, then transfer to AHUON after launch.
+ahuon_exco (President, Secretary, PRO, etc.)	Access EXCO dashboard. Can approve members, manage complaints, send notifications, view financial reports, generate certificates. Cannot change plugin settings or themes.
+member (Approved, paid-up)	Access member dashboard. Can edit profile, renew, download certificate, view complaints against them, respond to complaints.
+pending_member (Registered, not yet approved)	Cannot access directory or dashboard. Can only see "Your application is under review" page.
+lapsed_member (Expired more than 30 days)	Cannot access directory. Can access limited dashboard showing "Your membership has lapsed. Pay now to restore."
+subscriber (Public – pilgrims)	Can file complaints, check status, view directory, rate operators (after verified booking).
+PART 6: SECURITY REQUIREMENTS
+Requirement	Implementation
+SSL Certificate	Mandatory (Let's Encrypt free or paid)
+Login security	Limit login attempts plugin. Two-factor authentication for EXCO users.
+File uploads	Restrict file types (PDF, JPG, PNG, max 5MB). Scan with VirusTotal API (optional).
+SQL injection	Use WordPress $wpdb->prepare() for all custom queries
+XSS prevention	Escape all output with esc_html(), esc_attr(), etc.
+Data privacy (NDPR)	Privacy policy page. Consent checkbox on registration and complaint forms. Right to deletion process.
+Backups	Daily automated backup to off-site location (Google Drive or AWS S3)
+HTTPS redirection	Force all traffic to HTTPS via .htaccess
+PART 7: PERFORMANCE REQUIREMENTS
+Metric	Target
+Page load time (first visit)	< 3 seconds
+Page load time (repeat visit)	< 1.5 seconds
+Concurrent users supported	500
+Uptime guarantee	99.9%
+Image optimization	All images automatically compressed (WebP format)
+Caching	Server-side (Redis/Memcached) + Browser-side
+Recommended Plugins for Performance:
+
+WP Rocket or W3 Total Cache (caching)
+
+Smush or Imagify (image compression)
+
+Redis Object Cache (database caching)
