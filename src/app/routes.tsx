@@ -13,23 +13,28 @@ import { News } from "./pages/News";
 import { VerifyCertificate } from "./pages/VerifyCertificate";
 import { NotFound } from "./pages/NotFound";
 
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    Component: Root,
-    children: [
-      { index: true, Component: Home },
-      { path: "register", Component: Register },
-      { path: "login", Component: Login },
-      { path: "directory", Component: Directory },
-      { path: "directory/:memberId", Component: MemberDetail },
-      { path: "file-complaint", Component: FileComplaint },
-      { path: "complaint-status", Component: ComplaintStatus },
-      { path: "member-dashboard", Component: MemberDashboard },
-      { path: "exco", Component: ExcoDashboard },
-      { path: "news", Component: News },
-      { path: "verify", Component: VerifyCertificate },
-      { path: "*", Component: NotFound },
-    ],
-  },
-]);
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      Component: Root,
+      children: [
+        { index: true, Component: Home },
+        { path: "register", Component: Register },
+        { path: "login", Component: Login },
+        { path: "directory", Component: Directory },
+        { path: "directory/:memberId", Component: MemberDetail },
+        { path: "file-complaint", Component: FileComplaint },
+        { path: "complaint-status", Component: ComplaintStatus },
+        { path: "member-dashboard", Component: MemberDashboard },
+        { path: "exco", Component: ExcoDashboard },
+        { path: "news", Component: News },
+        { path: "verify", Component: VerifyCertificate },
+        { path: "*", Component: NotFound },
+      ],
+    },
+  ],
+  { basename },
+);
